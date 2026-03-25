@@ -175,25 +175,85 @@ button.primary-btn:disabled {
   margin-top: 1rem;
 }
 
-.image-preview {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid var(--border-color);
+.image-preview-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
   animation: scaleIn 0.3s ease-out;
+  cursor: grab;
 }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
+.image-preview-container.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
 
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.image-preview-container:active {
+  cursor: grabbing;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease;
+}
+
+.image-preview-container:hover .image-preview {
+  transform: scale(1.05);
+}
+
+.image-controls {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.image-preview-container:hover .image-controls {
+  opacity: 1;
+}
+
+.image-controls button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  backdrop-filter: blur(4px);
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.image-controls button:hover:not(:disabled) {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.image-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.image-controls button.remove-btn {
+  background: rgba(239, 68, 68, 0.8);
+}
+
+.image-controls button.remove-btn:hover {
+  background: rgb(239, 68, 68);
 }
 
 /* Progress / Loading State */

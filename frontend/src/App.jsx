@@ -10,6 +10,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [imagePrompt, setImagePrompt] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
   const handleImageUpload = (e) => {
     if (e.target.files) {
@@ -19,6 +20,37 @@ const App = () => {
   };
 
   const clearImages = () => setImages([]);
+
+  const handleMoveImage = (index, direction) => {
+    const newImages = [...images];
+    if (direction === 'up' && index > 0) {
+      [newImages[index], newImages[index - 1]] = [newImages[index - 1], newImages[index]];
+    } else if (direction === 'down' && index < newImages.length - 1) {
+      [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+    }
+    setImages(newImages);
+  };
+
+  const handleRemoveImage = (index) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
+  const onDragStart = (index) => {
+    setDraggedIndex(index);
+  };
+
+  const onDragOverPreview = (e) => {
+    e.preventDefault();
+  };
+
+  const onDropPreview = (targetIndex) => {
+    if (draggedIndex === null || draggedIndex === targetIndex) return;
+    const newImages = [...images];
+    const [draggedItem] = newImages.splice(draggedIndex, 1);
+    newImages.splice(targetIndex, 0, draggedItem);
+    setImages(newImages);
+    setDraggedIndex(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,7 +184,21 @@ const App = () => {
                 </p>
                 <div className="image-previews">
                   {images.map((img, idx) => (
-                    <img key={idx} src={URL.createObjectURL(img)} alt={`preview-${idx}`} className="image-preview" />
+                    <div
+                      key={idx}
+                      className={`image-preview-container ${draggedIndex === idx ? 'dragging' : ''}`}
+                      draggable
+                      onDragStart={() => onDragStart(idx)}
+                      onDragOver={onDragOverPreview}
+                      onDrop={() => onDropPreview(idx)}
+                    >
+                      <img src={URL.createObjectURL(img)} alt={`preview-${idx}`} className="image-preview" />
+                      <div className="image-controls">
+                        <button type="button" onClick={() => handleMoveImage(idx, 'up')} disabled={idx === 0}>▲</button>
+                        <button type="button" onClick={() => handleMoveImage(idx, 'down')} disabled={idx === images.length - 1}>▼</button>
+                        <button type="button" className="remove-btn" onClick={() => handleRemoveImage(idx)}>✕</button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -184,6 +230,9 @@ const App = () => {
           <div className="video-actions">
             <button className="secondary-btn" onClick={() => handleDownload(videoUrl)}>
               ⬇ Download
+            </button>
+            <button className="secondary-btn" onClick={() => setVideoUrl(null)}>
+              ⬅ Back to Edit
             </button>
             <button className="secondary-btn" onClick={() => { setVideoUrl(null); setStory(''); clearImages(); }}>
               🔄 Create Another
