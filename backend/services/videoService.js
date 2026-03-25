@@ -20,24 +20,18 @@ function createSceneVideo(imagePath, audioPath, sessionId, sceneIndex) {
             .inputOptions(['-loop 1'])
             .input(audioPath)
             .complexFilter([
-                // Resize image to 1920x1080 (cropping if necessary to fill), then add simple zoom effect
+                // Scale image to fit within 1920x1080 maintaining aspect ratio perfectly
                 {
                     filter: 'scale',
-                    options: '1920:1080:force_original_aspect_ratio=increase',
+                    options: '1920:1080:force_original_aspect_ratio=decrease',
                     inputs: '0:v',
                     outputs: 'scaled_image'
                 },
+                // Pad with black bars so it never cuts off parts of the image on mobile or laptop
                 {
-                    filter: 'crop',
-                    options: '1920:1080',
+                    filter: 'pad',
+                    options: '1920:1080:(ow-iw)/2:(oh-ih)/2:black',
                     inputs: 'scaled_image',
-                    outputs: 'cropped_image'
-                },
-                {
-                    // Basic zoom in effect over time
-                    filter: 'zoompan',
-                    options: 'z=\'min(zoom+0.0015,1.5)\':d=0:s=1920x1080',
-                    inputs: 'cropped_image',
                     outputs: 'v_out'
                 }
             ])
